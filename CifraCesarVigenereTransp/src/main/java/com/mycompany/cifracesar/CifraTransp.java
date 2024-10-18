@@ -7,60 +7,44 @@ import java.util.List;
 
 public class CifraTransp {
     public static String criptografar(String texto, String chave) {
-        int numColunas = chave.length();
-        int numLinhas = (int) Math.ceil((double) texto.length() / numColunas);
-        char[][] matriz = new char[numLinhas][numColunas];
+        // Remover espaços da mensagem
+        mensagem = mensagem.replaceAll(" ", "");
 
-        // Preencher a matriz
+        // Determinar o número de colunas com base no comprimento da chave
+        int numColunas = chave.length();
+
+        // Preencher a mensagem com 'x' se necessário
+        while (mensagem.length() % numColunas != 0) {
+            mensagem += 'x';
+        }
+
+        // Dividir a mensagem em uma matriz de caracteres
+        int numLinhas = mensagem.length() / numColunas;
+        char[][] matriz = new char[numLinhas][numColunas];
         int index = 0;
         for (int i = 0; i < numLinhas; i++) {
             for (int j = 0; j < numColunas; j++) {
-                if (index < texto.length()) {
-                    matriz[i][j] = texto.charAt(index++);
-                } else {
-                    matriz[i][j] = '\0'; // Preencher com caracteres nulos
-                }
+                matriz[i][j] = mensagem.charAt(index++);
             }
         }
 
-        // Criptografar com a chave
-        StringBuilder resultado = new StringBuilder();
-        char[] chaveC = chave.toCharArray();
-        Arrays.sort(chaveC);
-        for (int k : chaveC) {
-            for (int i = 0; i < numLinhas; i++) {
-                if (matriz[i][k] != '\0') {
-                    resultado.append(matriz[i][k]);
-                    System.out.println(resultado);
-                }
-            }
+        // Criar um array para representar a ordem das colunas com base na chave
+        Integer[] ordem = new Integer[numColunas];
+        for (int i = 0; i < numColunas; i++) {
+            ordem[i] = i;
         }
-        return resultado.toString();
-    }
-    // Função para descriptografar
-    public static String descriptografar(String texto, String chave) {
-        int numColunas = chave.length();
-        int numLinhas = (int) Math.ceil((double) texto.length() / numColunas);
-        char[][] matriz = new char[numLinhas][numColunas];
 
-        // Preencher a matriz na ordem da chave
-        int index = 0;
-//        for (int k : chave) {
-//            for (int i = 0; i < numLinhas; i++) {
-//                if (index < texto.length()) {
-//                    matriz[i][k] = texto.charAt(index++);
-//                }
-//            }
-//        }
-        // Ler a matriz linha por linha para recuperar o texto original
-        StringBuilder resultado = new StringBuilder();
+        // Ordenar a chave alfabeticamente e reordenar as colunas
+        Arrays.sort(ordem, Comparator.comparingInt(i -> chave.charAt(i)));
+
+        // Construir o texto cifrado lendo as linhas da matriz reorganizada
+        StringBuilder textoCifrado = new StringBuilder();
         for (int i = 0; i < numLinhas; i++) {
             for (int j = 0; j < numColunas; j++) {
-                if (matriz[i][j] != '\0') {
-                    resultado.append(matriz[i][j]);
-                }
+                textoCifrado.append(matriz[i][ordem[j]]);
             }
         }
-        return resultado.toString();
+
+        return textoCifrado.toString();
     }
 }
